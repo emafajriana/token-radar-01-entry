@@ -285,6 +285,9 @@ export function isPreToken(p: SnapshotProtocol): boolean {
 
 /** Whether a protocol is one the board may rank: pre-token, and the watchlist's own definition of a protocol that could still launch. */
 export function isRankable(p: SnapshotProtocol): boolean {
+  // The watchlist's own definition, applied to the whole snapshot: an exchange's own product
+  // (a bridge, a staked-ETH wrapper) is a product of a token that already trades, not a protocol
+  // still waiting on a launch of its own — so coinbase-bridge, however large its TVL, never ranks.
   return (
     isPreToken(p) &&
     !PRODUCT_CATEGORIES.has(p.category ?? '') &&
