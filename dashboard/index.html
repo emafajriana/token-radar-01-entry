@@ -1,14 +1,112 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Radar: pre-token protocols ranked by implied value</title>
+<title>Token Radar — Pre-token protocol board</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<a class="skip" href="#board">Skip to the board</a>
-<main id="board" tabindex="-1" aria-busy="true"></main>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">◉</span>
+    <div>
+      <h1>Token Radar</h1>
+      <p>Pre-token protocol board</p>
+    </div>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+
+<main id="board">
+  <section class="lede">
+    <h2>Every protocol with no token yet, ranked by what its launch would be worth.</h2>
+    <p>The watchlist is the floor: protocols holding at least $50M of TVL whose record carries no token. The early radar below it carries every other rankable pre-token protocol the snapshot holds, down to the smallest. Each row shows the implied value the model derives from that protocol's own figures, and the steps to farm it.</p>
+  </section>
+
+  <section class="facts" id="facts" aria-label="Board facts"></section>
+
+  <section class="panel chart-panel">
+    <h3>Top 10 by implied value</h3>
+    <div id="chart" class="chart"></div>
+  </section>
+
+  <section class="panel controls" aria-label="Board controls">
+    <div class="control-row">
+      <label>Search <input id="q" type="search" placeholder="Name, category or chain" autocomplete="off"></label>
+      <label>Category <select id="cat"><option value="">All categories</option></select></label>
+      <label>Chain <select id="chain"><option value="">All chains</option></select></label>
+      <label>7-day growth
+        <select id="growth">
+          <option value="any">Any</option>
+          <option value="up">Growing</option>
+          <option value="down">Shrinking</option>
+        </select>
+      </label>
+      <label class="check"><input id="watch" type="checkbox"> Watchlist only</label>
+    </div>
+    <div class="tabs" role="tablist">
+      <button id="tab-pre" role="tab" aria-selected="true">Pre-token</button>
+      <button id="tab-live" role="tab" aria-selected="false">Live token</button>
+    </div>
+    <p class="count" id="count"></p>
+  </section>
+
+  <section class="panel table-panel">
+    <table id="board-table">
+      <thead>
+        <tr>
+          <th data-sort="rank">Rank</th>
+          <th data-sort="name">Protocol</th>
+          <th data-sort="tvl_usd">TVL</th>
+          <th data-sort="change_7d">7d</th>
+          <th data-sort="age_days">Age</th>
+          <th data-sort="implied_value_usd">Implied value</th>
+          <th data-sort="watchlist">Board</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <table id="live-table" hidden>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Protocol</th>
+          <th>TVL</th>
+          <th>7d</th>
+          <th>Market cap</th>
+          <th>Token</th>
+        </tr>
+      </thead>
+      <tbody id="live-rows"></tbody>
+    </table>
+    <p class="caption" id="live-caption" hidden>These protocols already trade, so their market cap is a fact, not a model — and their market-cap-per-TVL is what prices the board above.</p>
+  </section>
+
+  <section class="panel model-panel" id="model-panel">
+    <h3>How implied value is computed</h3>
+    <p class="formula">implied = max(1, round(TVL × category multiple × growth multiplier × maturity multiplier))</p>
+    <p>growth multiplier = 1 + (clamped 7-day change ÷ 100) × 0.5, with the change clamped to −60%…+120%. Maturity multiplier = 0.6 + (min(age in days, 1095) ÷ 1095) × 0.4, using 365 days when the listing date is unknown. The category multiple is the median market-cap-per-TVL of the live-token protocols in the same category; when a category has fewer than 3 live protocols the global median across all live protocols is used instead. The multiple is clamped to 0.05×–1.25×.</p>
+    <table id="multiples-table">
+      <thead>
+        <tr><th>Category</th><th>Live n</th><th>Multiple</th><th>Source</th></tr>
+      </thead>
+      <tbody id="multiples-rows"></tbody>
+    </table>
+    <p class="note">A protocol is called pre-token because its record carries no token — it may still hold one its record does not carry. The board ranks only non-exchange, non-versioned, non-wrapped, non-staked and non-bridged products not named for an exchange.</p>
+  </section>
+
+  <footer id="footer"></footer>
+</main>
+
+<dialog class="detail" id="detail">
+  <div class="detail-body">
+    <h2 id="detail-title"></h2>
+    <div id="detail-content"></div>
+    <button id="detail-close" type="button">Close</button>
+  </div>
+</dialog>
+
 <script src="../data.js"></script>
 <script src="app.js"></script>
 </body>
