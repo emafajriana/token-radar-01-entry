@@ -103,8 +103,12 @@ function main(): void {
     : [];
   if (shots.length < 3) fail(`screenshots/ holds ${shots.length} images, fewer than 3`);
 
-  rmSync(output, { recursive: true, force: true });
+  // The grader mounts /output: the directory itself cannot be removed
+  // (rmdir of a mount point is EBUSY). Create it, then empty its contents.
   mkdirSync(output, { recursive: true });
+  for (const entry of readdirSync(output, { withFileTypes: true })) {
+    rmSync(join(output, entry.name), { recursive: true, force: true });
+  }
 
   writeFileSync(join(output, 'board.json'), `${JSON.stringify({ rows: board.rows }, null, 2)}\n`, 'utf8');
   writeFileSync(
